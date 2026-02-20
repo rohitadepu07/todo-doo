@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do-Doo | High-Alert Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- NEO-BRUTALISM "HIGH-ALERT" THEME --- */
+        :root {
+            --bg: #32cbf1;     /* Cyber Yellow */
+            --main: #f2cf06;   /* Safety Orange */
+            --accent: #fd1a2c; /* Red-Pink */
+            --secondary: hsl(35, 96%, 49%); /* Electric Blue */
+            --card: #ffffff;
+            --border: #000000;
+            --bw: 4px;
+            --shadow: 8px 8px 0px #000;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card);
+            border: var(--bw) solid var(--border);
+            box-shadow: 12px 12px 0px var(--border);
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        /* --- HEADINGS --- */
+        h1, h2, h3 { 
+            text-transform: uppercase; 
+            margin-top: 0; 
+            background: var(--main);
+            color: white;
+            display: inline-block;
+            padding: 8px 15px;
+            border: var(--bw) solid var(--border);
+            box-shadow: 5px 5px 0px var(--border);
+        }
+
+        /* --- INPUTS & BUTTONS --- */
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: var(--bw) solid var(--border);
+            font-size: 1rem;
+            font-weight: 900;
+            box-sizing: border-box;
+            outline: none;
+            background: #fff;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: var(--bw) solid var(--border);
+            background: var(--secondary);
+            color: white;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--border);
+            transition: all 0.1s;
+        }
+
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--border);
+        }
+
+        .auth-btn { width: 100%; background: var(--main); margin-bottom: 20px; }
+
+        /* --- FOLDER UI --- */
+        .folder-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            margin: 20px 0;
+            background: #fff;
+            border: var(--bw) solid var(--border);
+            padding: 10px;
+            box-shadow: 4px 4px 0px var(--border);
+        }
+
+        .folder-tabs { 
+            display: flex; 
+            gap: 10px; 
+            overflow-x: auto; 
+            flex-grow: 1;
+            scrollbar-width: none;
+        }
+        .folder-tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            background: white;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            border: var(--bw) solid var(--border);
+            box-shadow: 3px 3px 0px var(--border);
+            color: black;
+        }
+
+        .tab.active { 
+            background: var(--main); 
+            color: white; 
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--border);
+        }
+
+        .add-folder-btn {
+            background: var(--accent);
+            color: white;
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        /* --- TASK LIST --- */
+        ul { list-style: none; padding: 0; margin-top: 20px; }
+        li {
+            background: white;
+            border: var(--bw) solid var(--border);
+            margin-bottom: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 5px 5px 0px var(--border);
+        }
+        .task-text.completed { text-decoration: line-through; opacity: 0.5; }
+        .del-btn { background: var(--danger); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(251, 86, 7, 0.4); /* Orange tint */
+            backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: white;
+            border: var(--bw) solid var(--border);
+            padding: 2.5rem;
+            box-shadow: 15px 15px 0px var(--border);
+            width: 320px;
+            text-align: center;
+        }
+
+        /* --- TOP BAR --- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: var(--bw) solid var(--border);
+            padding-bottom: 15px;
+        }
+        .profile-circle {
+            width: 48px; height: 48px;
+            border: var(--bw) solid var(--border);
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: white;
+            box-shadow: 4px 4px 0px var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="top-bar" id="topBar" style="display: none;">
+            <div><h1 style="font-size: 1.1rem; margin: 0; background: var(--border);">To-Do-Doo</h1></div>
+            <div style="position: relative;">
+                <div class="profile-circle" id="userInitial" onclick="toggleMenu()">?</div>
+                <div id="profileMenu" style="display:none; position:absolute; right:0; top:65px; background:white; border:var(--bw) solid #000; z-index:100; width:180px; box-shadow: var(--shadow);">
+                    <div style="padding:15px; border-bottom:var(--bw) solid #000; font-weight:900;" id="nickNameDisp">ROHIT</div>
+                    <button style="width:100%; border:none; background: var(--danger); color: white; box-shadow:none; border-radius:0;" onclick="logout()">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="authSection">
+            <h2 id="authTitle">LOG IN</h2>
+            <input type="text" id="user" placeholder="USERNAME">
+            <input type="password" id="pass" placeholder="PASSWORD">
+            <input type="text" id="nickname" placeholder="NICKNAME" style="display: none;">
+            <button class="auth-btn" id="authBtn" onclick="handleAuth()">LET'S GO!</button>
+            <p onclick="toggleAuthMode()" style="cursor:pointer; text-decoration: underline; font-weight: 900; text-align: center;">NEED AN ACCOUNT?</p>
+        </div>
+
+        <div id="taskSection" style="display: none;">
+            <h2 id="welcomeMsg" style="background: var(--secondary);">HELLO!</h2>
+            
+            <div class="folder-container">
+                <div class="folder-tabs" id="folderTabs"></div>
+                <button class="add-folder-btn" onclick="openModal()">+</button>
+            </div>
+
+            <input type="text" id="taskTitle" placeholder="WRITE TASK...">
+            <button class="auth-btn" onclick="addTask()">ADD TO LIST</button>
+
+            <ul id="taskList"></ul>
+        </div>
+    </div>
+
+    <div id="folderModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>NEW FOLDER</h3>
+            <input type="text" id="newFolderName" placeholder="NAME IT...">
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                <button style="flex: 1; background: #eee; color: #000;" onclick="closeModal()">CANCEL</button>
+                <button style="flex: 1; background: var(--main);" onclick="saveFolder()">CREATE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        let isLoginMode = true;
+        let currentFolder = "General";
+        let folders = ["General", "College", "Grocery"];
+
+        
+
+        function updateUI() {
+            const token = localStorage.getItem("token");
+            if (token) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('taskSection').style.display = 'block';
+                document.getElementById('topBar').style.display = 'flex';
+                
+                const savedFolders = localStorage.getItem("custom_folders");
+                if (savedFolders) folders = JSON.parse(savedFolders);
+                
+                const nick = localStorage.getItem("nickname") || "User";
+                document.getElementById('userInitial').innerText = nick[0].toUpperCase();
+                document.getElementById('nickNameDisp').innerText = nick.toUpperCase();
+                document.getElementById('welcomeMsg').innerText = nick.toUpperCase() + "'S LIST";
+
+                renderFolders();
+                loadTasks();
+            } else {
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('taskSection').style.display = 'none';
+                document.getElementById('topBar').style.display = 'none';
+            }
+        }
+
+        function renderFolders() {
+            const container = document.getElementById('folderTabs');
+            container.innerHTML = "";
+            folders.forEach(f => {
+                const btn = document.createElement('button');
+                btn.className = `tab ${f === currentFolder ? 'active' : ''}`;
+                btn.innerText = f.toUpperCase();
+                btn.onclick = () => { currentFolder = f; renderFolders(); loadTasks(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function openModal() { document.getElementById('folderModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('folderModal').style.display = 'none'; }
+        
+        function saveFolder() {
+            const name = document.getElementById('newFolderName').value.trim();
+            if (name && !folders.includes(name)) {
+                folders.push(name);
+                localStorage.setItem("custom_folders", JSON.stringify(folders));
+                currentFolder = name;
+                renderFolders(); loadTasks(); closeModal();
+            }
+        }
+
+        async function handleAuth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if (isLoginMode) {
+                const fd = new URLSearchParams(); fd.append('username', u); fd.append('password', p);
+                const res = await fetch(`${API_URL}/login`, { method: "POST", body: fd });
+                if (res.ok) {
+                    const d = await res.json();
+                    localStorage.setItem("token", d.access_token);
+                    localStorage.setItem("nickname", d.nickname || u);
+                    updateUI();
+                } else alert("WRONG CREDENTIALS!");
+            } else {
+                const n = document.getElementById('nickname').value;
+                const res = await fetch(`${API_URL}/signup?username=${u}&password=${p}&nickname=${n}`, { method: "POST" });
+                if (res.ok) { alert("ACCOUNT CREATED!"); toggleAuthMode(); }
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('nickname').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('authTitle').innerText = isLoginMode ? "LOG IN" : "SIGN UP";
+            document.getElementById('authBtn').innerText = isLoginMode ? "LET'S GO!" : "JOIN NOW!";
+        }
+
+        async function loadTasks() {
+            const res = await fetch(`${API_URL}/tasks`, { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+            const tasks = await res.json();
+            const list = document.getElementById('taskList');
+            list.innerHTML = "";
+            tasks.filter(t => t.folder === currentFolder).forEach(t => {
+                list.innerHTML += `<li>
+                    <span class="${t.is_done ? 'completed' : ''}" style="font-weight: 900;">${t.title}</span>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="markDone(${t.id})">${t.is_done ? '✅' : 'DONE'}</button>
+                        <button class="del-btn" onclick="deleteTask(${t.id})">X</button>
+                    </div>
+                </li>`;
+            });
+        }
+
+        async function addTask() {
+            const t = document.getElementById('taskTitle').value;
+            if(!t) return;
+            await fetch(`${API_URL}/tasks`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
+                body: JSON.stringify({ title: t, folder: currentFolder })
+            });
+            document.getElementById('taskTitle').value = "";
+            loadTasks();
+        }
+
+        async function markDone(id) {
+            await fetch(`${API_URL}/tasks/${id}/done`, { method: "PUT", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+            loadTasks();
+        }
+
+        async function deleteTask(id) {
+            await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+            loadTasks();
+        }
+
+        function toggleMenu() {
+            const m = document.getElementById('profileMenu');
+            m.style.display = m.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function logout() { localStorage.clear(); location.reload(); }
+        window.onload = updateUI;
+    </script>
+</body>
+</html>
