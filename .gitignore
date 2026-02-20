@@ -1,0 +1,5 @@
+venv/
+.vite/
+__pycache__/
+tasks.db
+.env.local
